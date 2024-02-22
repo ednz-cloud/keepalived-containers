@@ -1,7 +1,5 @@
 # Build keepalived
-ARG ALPINE_VERSION=3.19.1
-
-FROM alpine:${ALPINE_VERSION} AS builder
+FROM alpine:3.19.1 AS builder
 
 RUN <<EOT
   apk --update-cache add \
@@ -65,7 +63,7 @@ RUN <<EOT
 EOT
 
 # Final stage
-FROM alpine:${ALPINE_VERSION}
+FROM alpine:3.19.1
 LABEL maintainer "Bertrand Lanson"
 LABEL description "Keepalived container"
 
@@ -92,15 +90,4 @@ COPY assets/keepalived.conf /etc/keepalived/keepalived.conf
 COPY assets/notify.sh /notify.sh
 COPY assets/entrypoint.sh /entrypoint.sh
 
-ENV INTERFACE="eth0" \
-    STATE="BACKUP" \
-    ROUTER_ID="50" \
-    PRIORITY="100" \
-    ADVERTISE_INTERVAL="1" \
-    UNICAST_PEERS="192.168.2.102,192.168.2.103" \
-    VIRTUAL_IPS="192.168.2.100/24" \
-    PASSWORD="keepalived-containers" \
-    NOTIFY="/notify.sh"
-
-
-CMD ["/bin/sh", "-x", "entrypoint.sh"]
+CMD ["/bin/sh", "entrypoint.sh"]
