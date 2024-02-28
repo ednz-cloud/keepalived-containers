@@ -34,11 +34,17 @@ jobs:
         with:
           versions: "${{ steps.docker-build-versions.outputs.build_targets }}"
 
+      - name: Print matrix
+        run: |
+          echo "$CONTENT"
+        env:
+          CONTENT: ${{ fromJSON(steps.docker-build-matrix.outputs.version_matrix) }}
+
   publish:
     runs-on: ubuntu-latest
     needs: define
     strategy:
-      matrix: ${{fromJson(needs.define.outputs.version_matrix)}}
+      matrix: ${{ fromJSON(needs.define.outputs.version_matrix) }}
     steps:
       - name: Print version
         run: echo ${{ matrix.version }}
