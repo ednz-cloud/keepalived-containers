@@ -38,7 +38,7 @@ jobs:
         run: |
           echo "$CONTENT"
         env:
-          CONTENT: ${{ fromJSON(steps.docker-build-matrix.outputs.version_matrix) }}
+          CONTENT: ${{ steps.docker-build-matrix.outputs.version_matrix }}
 
   publish:
     runs-on: ubuntu-latest
