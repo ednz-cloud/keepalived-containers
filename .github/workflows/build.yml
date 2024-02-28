@@ -44,7 +44,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: define
     strategy:
-      matrix: ${{ toJson(needs.define.outputs.version_matrix) }}
+      matrix:
+        versions: ${{ fromJson(needs.define.outputs.version_matrix) }}
     steps:
       - name: Print version
         run: echo ${{ matrix.version }}
