@@ -82,9 +82,9 @@ jobs:
             org.opencontainers.image.source=${{ github.event.repository.html_url }}
             org.opencontainers.image.version=${{ matrix.versions.version }}
           tags: |
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}},enable=${{ matrix.versions.is_latest_minor }}
-            type=semver,pattern={{major}},enable=${{ matrix.versions.is_latest_major }}
+            type=raw,value=${{ matrix.versions.version }},enable=true
+            type=raw,value=${{ matrix.versions.minor_version }},enable=${{ matrix.versions.is_latest_minor }}
+            type=raw,value=${{ matrix.versions.major_version }},enable=${{ matrix.versions.is_latest_major }}
             type=raw,value=latest,enable=${{ matrix.versions.is_latest }}
 
       - name: build and push
