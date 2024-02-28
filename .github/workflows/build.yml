@@ -64,8 +64,8 @@ jobs:
       - name: Login to container registry
         uses: docker/login-action@v3
         with:
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          username: ${{ secrets.DOCKERHUB_API_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_API_TOKEN }}
 
       - name: prepare metadata
         id: metadata
