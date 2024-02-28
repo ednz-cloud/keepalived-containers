@@ -48,16 +48,16 @@ jobs:
         versions: ${{ fromJson(needs.define.outputs.version_matrix) }}
     steps:
       - name: Print version
-        run: echo ${{ matrix.version }}
+        run: echo ${{ matrix.versions.version }}
 
       - name: Print is_latest
-        run: echo ${{ matrix.is_latest }}
+        run: echo ${{ matrix.versions.is_latest }}
 
       - name: Print is_latest_major
-        run: echo ${{ matrix.is_latest_major }}
+        run: echo ${{ matrix.versions.is_latest_major }}
 
       - name: Print is_latest_minor
-        run: echo ${{ matrix.is_latest_minor }}
+        run: echo ${{ matrix.versions.is_latest_minor }}
 
       # - name: Checkout
       #   uses: actions/checkout@v4
