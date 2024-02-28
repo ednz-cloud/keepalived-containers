@@ -11,7 +11,6 @@ on:
 env:
   IMAGE_NAME: ednxzu/keepalived
   BUILD_PLATFORMS: linux/amd64
-  KEEPALIVED_VERSION: "2.2.3"
 
 jobs:
   define:
@@ -22,17 +21,23 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Install required packages
+        run: |
+          export DEBIAN_FRONTEND=noninteractive
+          sudo apt update
+          sudo apt install -y curl jq
+
       - id: docker-build-versions
         name: Set build versions
         run: |
-          build_versions='2.2.8,2.2.7,2.2.4,2.2.3,2.1.5,2.1.4,2.1.3,2.1.2,2.1.1,2.1.0,2.0.20,2.0.19,2.0.18,2.0.17,2.0.16,2.0.15,2.0.14,2.0.13'
-          echo "build_targets=$build_versions" >> "$GITHUB_OUTPUT"
+          build_versions=$(bash tools/version_check.sh)
+          echo "build_versions=$build_versions" >> "$GITHUB_OUTPUT"
 
       - id: docker-build-matrix
         name: Generate docker build matrix
         uses: ednz-cloud/docker-matrix-generator@main
         with:
-          versions: "${{ steps.docker-build-versions.outputs.build_targets }}"
+          versions: "${{ steps.docker-build-versions.outputs.build_versions }}"
 
       - name: Print matrix
         run: |
@@ -47,61 +52,48 @@ jobs:
       matrix:
         versions: ${{ fromJson(needs.define.outputs.version_matrix) }}
     steps:
-      - name: Print version
-        run: echo ${{ matrix.versions.version }}
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Print is_latest
-        run: echo ${{ matrix.versions.is_latest }}
+      - name: Setup buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: Print is_latest_major
-        run: echo ${{ matrix.versions.is_latest_major }}
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@v3
 
-      - name: Print is_latest_minor
-        run: echo ${{ matrix.versions.is_latest_minor }}
+      - name: Login to container registry
+        uses: docker/login-action@v3
+        with:
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      # - name: Checkout
-      #   uses: actions/checkout@v4
+      - name: prepare metadata
+        id: metadata
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE_NAME }}
+          flavor: |
+            latest=auto
+          labels: |
+            org.opencontainers.image.authors=${{ github.repository_owner }}
+            org.opencontainers.image.created=${{ needs.prepare.outputs.date }}
+            org.opencontainers.image.url=${{ github.event.repository.html_url }}
+            org.opencontainers.image.documentation=${{ github.event.repository.html_url }}
+            org.opencontainers.image.source=${{ github.event.repository.html_url }}
+            org.opencontainers.image.version=${{ matrix.versions.version }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}},enable=${{ matrix.versions.is_latest_minor }}
+            type=semver,pattern={{major}},enable=${{ matrix.versions.is_latest_major }}
+            type=raw,value=latest,enable=${{ matrix.versions.is_latest }}
 
-      # - name: Setup buildx
-      #   uses: docker/setup-buildx-action@v3
-
-      # - name: Setup QEMU
-      #   uses: docker/setup-qemu-action@v3
-
-      # - name: Login to container registry
-      #   uses: docker/login-action@v3
-      #   with:
-      #     username: ${{ github.actor }}
-      #     password: ${{ secrets.GITHUB_TOKEN }}
-
-      # - name: prepare metadata
-      #   id: metadata
-      #   uses: docker/metadata-action@v5
-      #   with:
-      #     images: ${{ env.IMAGE_NAME }}
-      #     flavor: |
-      #       latest=auto
-      #     labels: |
-      #       org.opencontainers.image.authors=${{ github.repository_owner }}
-      #       org.opencontainers.image.created=${{ needs.prepare.outputs.date }}
-      #       org.opencontainers.image.url=${{ github.event.repository.html_url }}
-      #       org.opencontainers.image.documentation=${{ github.event.repository.html_url }}
-      #       org.opencontainers.image.source=${{ github.event.repository.html_url }}
-      #       org.opencontainers.image.version=${{ env.KEEPALIVED_VERSION }}
-      #     tags: |
-      #       type=semver,pattern={{version}}
-      #       type=semver,pattern={{major}}.{{minor}}
-      #       type=semver,pattern={{major}}
-      #       type=ref,event=pr
-      #       type=sha
-
-      # - name: build and push
-      #   id: build-and-push
-      #   uses: docker/build-push-action@v5
-      #   with:
-      #     context: .
-      #     push: ${{ (github.event_name != 'pull_request') || (env.FORCE_PUBLISH == 'true') }}
-      #     tags: ${{ steps.metadata.outputs.tags }}
-      #     labels: ${{ steps.metadata.outputs.labels }}
-      #     platforms: ${{ env.BUILD_PLATFORMS }}
-      #     build-args: KEEPALIVED_VERSION=${{ env.KEEPALIVED_VERSION }}
+      - name: build and push
+        id: build-and-push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: ${{ (github.event_name != 'pull_request') || (env.FORCE_PUBLISH == 'true') }}
+          tags: ${{ steps.metadata.outputs.tags }}
+          labels: ${{ steps.metadata.outputs.labels }}
+          platforms: ${{ env.BUILD_PLATFORMS }}
+          build-args: KEEPALIVED_VERSION=${{ matrix.versions.version }}
