@@ -18,9 +18,6 @@ export VIRTUAL_IPS=${VIRTUAL_IPS:-"192.168.2.100/32 dev $INTERFACE"}
 export PASSWORD=${PASSWORD:-'password'}
 export NOTIFY=${NOTIFY:-'/notify.sh'}
 
-# Debug print of configured variables
-env
-
 # Ensure that the template file exists
 if [ ! -f "$CONFIG" ]; then
     echo "Template file $CONFIG not found."
