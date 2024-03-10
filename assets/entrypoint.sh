@@ -24,16 +24,6 @@ if [ ! -f "$CONFIG" ]; then
     exit 1
 fi
 
-# Replace commas in VARIABLES with newlines
-if [ -n "$UNICAST_PEERS" ]; then
-  UNICAST_PEERS_FMT=$(replace_commas_with_newlines "$UNICAST_PEERS")
-else
-  UNICAST_SRC_IP_LINE='unicast_src_ip ${UNICAST_SRC_IP}'
-  UNICAST_PEER_BLOCK='unicast_peer/,/  }'
-  sed -i "/${UNICAST_SRC_IP_LINE}/d" "$CONFIG"
-  sed -i "/${UNICAST_PEER_BLOCK}/d" "$CONFIG"
-fi
-
 VIRTUAL_IPS_FMT=$(replace_commas_with_newlines "$VIRTUAL_IPS")
 
 if [ -n "$NOTIFY" ]; then
@@ -48,6 +38,14 @@ fi
 if [ -f "$CONFIG" ]; then
   if  grep -q '${.*}' "$CONFIG"; then
     echo "Configuration file $CONFIG seems to be a template file, templating..."
+    if [ -n "$UNICAST_PEERS" ]; then
+      UNICAST_PEERS_FMT=$(replace_commas_with_newlines "$UNICAST_PEERS")
+    else
+      UNICAST_SRC_IP_LINE='unicast_src_ip ${UNICAST_SRC_IP}'
+      UNICAST_PEER_BLOCK='unicast_peer/,/  }'
+      sed -i "/${UNICAST_SRC_IP_LINE}/d" "$CONFIG"
+      sed -i "/${UNICAST_PEER_BLOCK}/d" "$CONFIG"
+    fi
     TMP_CONFIG=$(mktemp)
     UNICAST_PEERS=$UNICAST_PEERS_FMT;
     VIRTUAL_IPS=$VIRTUAL_IPS_FMT;
