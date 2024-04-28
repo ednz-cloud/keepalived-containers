@@ -55,7 +55,7 @@ The following **environment variables** are available by default.
 | Name                 | Description                                            | Required  | Default                           |
 | -------------------- | ------------------------------------------------------ | --------- | --------------------------------- |
 | `CONFIG`             | Path to the config file (keepalived.conf)              | No        | `/etc/keepalived/keepalived.conf` |
-| `VRRP_INSTANCE`      | Name of the VVRP Instance of the container             | No        | `$HOSTNAME`                       |
+| `VRRP_INSTANCE`      | Name of the VRRP Instance of the container             | No        | `$HOSTNAME`                       |
 | `INTERFACE`          | The interface to attach the virtual IP to              | No        | `eth0`                            |
 | `UNICAST_SRC_IP`     | The source IP for unicast                              | No        | `ip of $INTERFACE`                |
 | `UNICAST_PEERS`      | Comma-separated list of peers                          | No        | `NOT SET`                         |
@@ -111,7 +111,7 @@ ednxzu/keepalived
 
 ### Bring your own config
 
-In the event that the entrypoint does not find any occurence of `${*}` within the file specified in `$CONFIG`, it will assume that the configuration does not need templating, and will simply try to runb it as is.
+In the event that the entrypoint does not find any occurence of `${*}` within the file specified in `$CONFIG`, it will assume that the configuration does not need templating, and will simply try to run it as is.
 
 This means that you can also bring your own configuration altogether, and forget about the environment variables.
 
