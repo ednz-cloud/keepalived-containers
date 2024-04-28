@@ -1,6 +1,7 @@
 # keepalived_containers
 
-![](https://github.com/ednz-cloud/keepalived-containers/actions/workflows/build.yml/badge.svg)
+![https://github.com/ednz-cloud/keepalived-containers/actions](https://github.com/ednz-cloud/keepalived-containers/actions/workflows/build.yml/badge.svg)
+![https://hub.docker.com/r/ednxzu/keepalived](https://img.shields.io/docker/pulls/ednxzu/keepalived.svg)
 
 Repository for building keepalived container images.
 
@@ -16,7 +17,31 @@ docker run --cap-add=NET_ADMIN --net=host -d ednxzu/keepalived:latest
 
 ## Versions
 
+All images are available on [Dockerhub](https://hub.docker.com/r/ednxzu/keepalived).
 
+This repository builds all keepalived version **>2.0.0**, with a few exeptions.
+Some versions have undocumented build dependencies, and since I have not found how to build them, they are skipped for now.
+
+Included versions:
+ - `2.2.3`
+ - `2.2.4`
+ - `2.2.7`
+ - `2.2.8`
+
+Excluded versions:
+ - `2.2.0`
+ - `2.2.1`
+ - `2.2.2`
+ - `2.2.5`
+ - `2.2.6`
+
+If you know how any of these versions can be built, please feel free to submit a PR to add them to the build list.
+
+Specific version tags `X.Y.Z`, as well as `X.Y`, `X` and `latest` are available and automatically updated on rebuild.
+
+New images are automatically built every 15 days, in order to keep the base image up-to-date. New keepalived versions are automatically fetched from the [keepalived](https://github.com/acassen/keepalived) repository, and will be built either by me manually triggering a new build, or during the next scheduled build (every 15 days).
+
+Since images are rebuilt from upstream alpine images, and compiled from source every time, I cannot guarantee immutability of the images (it is dependent on upstream alpine), but realistically, you should be fine treating them as immutable images :slightly_smiling_face:
 
 ## Setup
 
