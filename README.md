@@ -32,7 +32,7 @@ Excluded versions:
  - `2.2.0`
  - `2.2.1`
  - `2.2.2`
- - `2.2.5`
+ - `2.2.5` (not an actual release)
  - `2.2.6`
 
 If you know how any of these versions can be built, please feel free to submit a PR to add them to the build list.
