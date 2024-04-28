@@ -1,7 +1,7 @@
 # keepalived_containers
 
-![https://github.com/ednz-cloud/keepalived-containers/actions](https://github.com/ednz-cloud/keepalived-containers/actions/workflows/build.yml/badge.svg)
-![https://hub.docker.com/r/ednxzu/keepalived](https://img.shields.io/docker/pulls/ednxzu/keepalived.svg)
+[![actions](https://github.com/ednz-cloud/keepalived-containers/actions/workflows/build.yml/badge.svg)](https://github.com/ednz-cloud/keepalived-containers/actions)
+[![dockerhub](https://img.shields.io/docker/pulls/ednxzu/keepalived.svg)](https://hub.docker.com/r/ednxzu/keepalived)
 
 Repository for building keepalived container images.
 
