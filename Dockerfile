@@ -80,7 +80,9 @@ RUN <<EOT
     net-snmp \
     openssl \
     pcre2 \
-    envsubst
+    envsubst \
+    curl \
+    jq
   addgroup -S keepalived_script
   adduser -D -S -G keepalived_script keepalived_script
 EOT
