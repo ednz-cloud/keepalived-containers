@@ -1,5 +1,5 @@
 # Build keepalived
-FROM alpine:3.20.0 AS builder
+FROM alpine:3.20.1 AS builder
 
 RUN <<EOT
   apk --update-cache add \
@@ -63,7 +63,7 @@ RUN <<EOT
 EOT
 
 # Final stage
-FROM alpine:3.20.0
+FROM alpine:3.20.1
 LABEL maintainer "Bertrand Lanson"
 LABEL description "Keepalived container"
 
