@@ -52,20 +52,20 @@ This image is made to be super easy to customize without having to rebuild it or
 The following **environment variables** are available by default.
 
 
-| Name                 | Description                                            | Required  | Default                           |
-| -------------------- | ------------------------------------------------------ | --------- | --------------------------------- |
-| `CONFIG`             | Path to the config file (keepalived.conf)              | No        | `/etc/keepalived/keepalived.conf` |
-| `VRRP_INSTANCE`      | Name of the VRRP Instance of the container             | No        | `$HOSTNAME`                       |
-| `INTERFACE`          | The interface to attach the virtual IP to              | No        | `eth0`                            |
-| `UNICAST_SRC_IP`     | The source IP for unicast                              | No        | `ip of $INTERFACE`                |
-| `UNICAST_PEERS`      | Comma-separated list of peers                          | No        | `NOT SET`                         |
-| `STATE`              | Initial state of the keepalived instance               | No        | `BACKUP`                          |
-| `ROUTER_ID`          | Unique identifier for the router                       | No        | `50`                              |
-| `PRIORITY`           | Priority of the VRRP instance                          | No        | `100`                             |
-| `ADVERTISE_INTERVAL` | Advertisement interval in seconds                      | No        | `1`                               |
-| `VIRTUAL_IPS`        | Virtual IP addresses and associated interfaces         | No        | `192.168.2.100/32 dev $INTERFACE` |
-| `PASSWORD`           | Authentication password for VRRP communication         | No        | `password`                        |
-| `NOTIFY`             | Path to the script to be executed on state transitions | No        | `/notify.sh`                      |
+| Name                 | Description                                            | Required | Default                           |
+|----------------------|--------------------------------------------------------|----------|-----------------------------------|
+| `CONFIG`             | Path to the config file (keepalived.conf)              | No       | `/etc/keepalived/keepalived.conf` |
+| `VRRP_INSTANCE`      | Name of the VRRP Instance of the container             | No       | `$HOSTNAME`                       |
+| `INTERFACE`          | The interface to attach the virtual IP to              | No       | `eth0`                            |
+| `UNICAST_SRC_IP`     | The source IP for unicast                              | No       | `ip of $INTERFACE`                |
+| `UNICAST_PEERS`      | Comma-separated list of peers                          | No       | `NOT SET`                         |
+| `STATE`              | Initial state of the keepalived instance               | No       | `BACKUP`                          |
+| `ROUTER_ID`          | Unique identifier for the router                       | No       | `50`                              |
+| `PRIORITY`           | Priority of the VRRP instance                          | No       | `100`                             |
+| `ADVERTISE_INTERVAL` | Advertisement interval in seconds                      | No       | `1`                               |
+| `VIRTUAL_IPS`        | Virtual IP addresses and associated interfaces         | No       | `192.168.2.100/32 dev $INTERFACE` |
+| `PASSWORD`           | Authentication password for VRRP communication         | No       | `password`                        |
+| `NOTIFY`             | Path to the script to be executed on state transitions | No       | `/notify.sh`                      |
 
 These variables are used to configure keepalived instance, but in simple scenarios, most of them can be left untouched.
 

@@ -1,7 +1,7 @@
 #!/bin/sh
 
 replace_commas_with_newlines() {
-    echo "$1" | tr ',' '\n' | awk 'NR > 1 { printf "    " } { print }'
+  echo "$1" | tr ',' '\n' | awk 'NR > 1 { printf "    " } { print }'
 }
 
 export CONFIG=${CONFIG:-'/etc/keepalived/keepalived.conf'}
@@ -20,23 +20,22 @@ export NOTIFY=${NOTIFY:-'/notify.sh'}
 
 # Ensure that the template file exists
 if [ ! -f "$CONFIG" ]; then
-    echo "Template file $CONFIG not found."
-    exit 1
+  echo "Template file $CONFIG not found."
+  exit 1
 fi
 
 VIRTUAL_IPS_FMT=$(replace_commas_with_newlines "$VIRTUAL_IPS")
 
 if [ -n "$NOTIFY" ]; then
   if [ -e "$NOTIFY" ]; then
-      chmod +x "$NOTIFY"
+    chmod +x "$NOTIFY"
   else
-      echo "WARNING: The NOTIFY path '$NOTIFY' does not exist."
+    echo "WARNING: The NOTIFY path '$NOTIFY' does not exist."
   fi
 fi
 
-
 if [ -f "$CONFIG" ]; then
-  if  grep -q '${.*}' "$CONFIG"; then
+  if grep -q '${.*}' "$CONFIG"; then
     echo "Configuration file $CONFIG seems to be a template file, templating..."
     if [ -n "$UNICAST_PEERS" ]; then
       UNICAST_PEERS_FMT=$(replace_commas_with_newlines "$UNICAST_PEERS")
@@ -47,9 +46,9 @@ if [ -f "$CONFIG" ]; then
       sed -i "/${UNICAST_PEER_BLOCK}/d" "$CONFIG"
     fi
     TMP_CONFIG=$(mktemp)
-    UNICAST_PEERS=$UNICAST_PEERS_FMT;
-    VIRTUAL_IPS=$VIRTUAL_IPS_FMT;
-    envsubst < $CONFIG > $TMP_CONFIG
+    UNICAST_PEERS=$UNICAST_PEERS_FMT
+    VIRTUAL_IPS=$VIRTUAL_IPS_FMT
+    envsubst <$CONFIG >$TMP_CONFIG
     mv "$TMP_CONFIG" "$CONFIG"
   else
     echo "Configuration file $CONFIG is not a template file. nothing to do."
