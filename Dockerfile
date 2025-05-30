@@ -1,5 +1,5 @@
 # Builder stage
-FROM alpine:3.21.3 AS builder
+FROM alpine:3.22.0 AS builder
 
 ARG KEEPALIVED_VERSION=2.3.2
 COPY tools/install.sh /install.sh
@@ -7,7 +7,7 @@ RUN chmod +x /install.sh
 RUN /install.sh ${KEEPALIVED_VERSION}
 
 # Final stage
-FROM alpine:3.21.3
+FROM alpine:3.22.0
 
 LABEL maintainer="Bertrand Lanson"
 LABEL description="Keepalived container"
