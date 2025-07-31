@@ -19,7 +19,7 @@ docker run --cap-add=NET_ADMIN --net=host -d ednxzu/keepalived:latest
 
 All images are available on [Dockerhub](https://hub.docker.com/r/ednxzu/keepalived).
 
-This repository builds all keepalived version **>2.0.0**, with a few exeptions.
+This repository builds all keepalived version **>2.0.0**, with a few exceptions.
 Some versions have undocumented build dependencies, and since I have not found how to build them, they are skipped for now.
 
 Included versions:
@@ -30,6 +30,8 @@ Included versions:
  - `2.3.0`
  - `2.3.1`
  - `2.3.2`
+ - `2.3.3`
+ - `2.3.4`
 
 Excluded versions:
  - `2.2.0`
@@ -45,6 +47,13 @@ Specific version tags `X.Y.Z`, as well as `X.Y`, `X` and `latest` are available 
 New images are automatically built every 15 days, in order to keep the base image up-to-date. New keepalived versions are automatically fetched from the [keepalived](https://github.com/acassen/keepalived) repository, and will be built either by me manually triggering a new build, or during the next scheduled build (every 15 days).
 
 Since images are rebuilt from upstream alpine images, and compiled from source every time, I cannot guarantee immutability of the images (it is dependent on upstream alpine), but realistically, you should be fine treating them as immutable images :slightly_smiling_face:
+
+## Architecture
+
+This repository builds container images for both **amd64** and **arm64** architectures.
+ARM64 builds were contributed by [nano9g](https://github.com/nano9g).
+
+Multi-architecture manifests are published on Docker Hub, so pulling the image on supported platforms will automatically get the correct architecture variant.
 
 ## Setup
 
