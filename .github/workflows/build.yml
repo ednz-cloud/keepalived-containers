@@ -99,7 +99,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Dockerhub description
-        uses: peter-evans/dockerhub-description@v4
+        uses: peter-evans/dockerhub-description@v5
         with:
           username: ${{ secrets.DOCKERHUB_API_USERNAME }}
           password: ${{ secrets.DOCKERHUB_API_TOKEN }}
