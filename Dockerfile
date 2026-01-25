@@ -25,6 +25,7 @@ RUN apk --no-cache add \
   openssl \
   pcre2 \
   envsubst \
+  conntrack-tools \
   curl \
   jq
 
