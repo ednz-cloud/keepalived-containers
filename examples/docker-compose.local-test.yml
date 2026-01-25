@@ -1,0 +1,131 @@
+---
+# Local HA test setup - simulates two nodes on a single machine
+#
+# Each node runs conntrackd, keepalived, and nginx in the same network namespace
+# so conntrackd can track all connections.
+#
+# Usage:
+#   sudo podman-compose -f docker-compose.local-test.yml up -d
+#   ./test-failover.sh
+#
+# Manual testing:
+#   curl http://172.20.0.100  # Should return "node1" or "node2"
+#   sudo podman-compose -f docker-compose.local-test.yml stop keepalived-node1
+#   curl http://172.20.0.100  # Should now return "node2"
+
+services:
+  # ============ NODE 1 (Primary) ============
+  conntrackd-node1:
+    image: conntrackd:test
+    build:
+      context: ../
+      dockerfile: Containerfile.conntrackd
+    container_name: conntrackd-node1
+    hostname: node1
+    privileged: true
+    networks:
+      ha-network:
+        ipv4_address: 172.20.0.10
+    environment:
+      - INTERFACE=eth0
+      - IPV4_ADDRESS=172.20.0.10
+      - IPV4_DESTINATION_ADDRESS=172.20.0.20
+    volumes:
+      - conntrackd-socket-node1:/var/run/conntrackd
+
+  keepalived-node1:
+    image: keepalived:test
+    build:
+      context: ../
+      dockerfile: Containerfile.keepalived
+    container_name: keepalived-node1
+    privileged: true
+    network_mode: container:conntrackd-node1
+    depends_on:
+      conntrackd-node1:
+        condition: service_started
+    environment:
+      - INTERFACE=eth0
+      - VIRTUAL_IPS=172.20.0.100/24 dev eth0
+      - STATE=MASTER
+      - PRIORITY=150
+      - ROUTER_ID=51
+      - UNICAST_SRC_IP=172.20.0.10
+      - UNICAST_PEERS=172.20.0.20
+      - NOTIFY=/notify-conntrackd.sh
+    volumes:
+      - conntrackd-socket-node1:/var/run/conntrackd:ro
+
+  nginx-node1:
+    image: docker.io/library/nginx:alpine
+    container_name: nginx-node1
+    network_mode: container:conntrackd-node1
+    depends_on:
+      conntrackd-node1:
+        condition: service_started
+    volumes:
+      - ./node1-index.html:/usr/share/nginx/html/index.html:ro
+
+  # ============ NODE 2 (Backup) ============
+  conntrackd-node2:
+    image: conntrackd:test
+    build:
+      context: ../
+      dockerfile: Containerfile.conntrackd
+    container_name: conntrackd-node2
+    hostname: node2
+    privileged: true
+    networks:
+      ha-network:
+        ipv4_address: 172.20.0.20
+    environment:
+      - INTERFACE=eth0
+      - IPV4_ADDRESS=172.20.0.20
+      - IPV4_DESTINATION_ADDRESS=172.20.0.10
+    volumes:
+      - conntrackd-socket-node2:/var/run/conntrackd
+
+  keepalived-node2:
+    image: keepalived:test
+    build:
+      context: ../
+      dockerfile: Containerfile.keepalived
+    container_name: keepalived-node2
+    privileged: true
+    network_mode: container:conntrackd-node2
+    depends_on:
+      conntrackd-node2:
+        condition: service_started
+    environment:
+      - INTERFACE=eth0
+      - VIRTUAL_IPS=172.20.0.100/24 dev eth0
+      - STATE=BACKUP
+      - PRIORITY=100
+      - ROUTER_ID=51
+      - UNICAST_SRC_IP=172.20.0.20
+      - UNICAST_PEERS=172.20.0.10
+      - NOTIFY=/notify-conntrackd.sh
+    volumes:
+      - conntrackd-socket-node2:/var/run/conntrackd:ro
+
+  nginx-node2:
+    image: docker.io/library/nginx:alpine
+    container_name: nginx-node2
+    network_mode: container:conntrackd-node2
+    depends_on:
+      conntrackd-node2:
+        condition: service_started
+    volumes:
+      - ./node2-index.html:/usr/share/nginx/html/index.html:ro
+
+networks:
+  ha-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
+          gateway: 172.20.0.1
+
+volumes:
+  conntrackd-socket-node1:
+  conntrackd-socket-node2:

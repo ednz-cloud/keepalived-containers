@@ -1,0 +1,19 @@
+FROM alpine:3.23.2
+
+LABEL maintainer="Bertrand Lanson"
+LABEL description="Conntrackd container"
+
+RUN apk --no-cache add \
+  conntrack-tools \
+  envsubst \
+  curl \
+  iproute2-ss
+
+RUN mkdir -p /var/run/conntrackd
+
+COPY assets/conntrackd/conntrackd.conf /etc/conntrackd/conntrackd.conf
+COPY assets/conntrackd/entrypoint.sh /entrypoint.sh
+
+RUN chmod +x /entrypoint.sh
+
+CMD ["/bin/sh", "/entrypoint.sh"]
