@@ -4,7 +4,7 @@ FROM alpine:3.23.2 AS builder
 ARG KEEPALIVED_VERSION=2.3.2
 COPY tools/install.sh /install.sh
 RUN chmod +x /install.sh
-RUN /install.sh ${KEEPALIVED_VERSION}
+RUN /install.sh ${KEEPALIVED_VERSION} || exit 1
 
 # Final stage
 FROM alpine:3.23.2
@@ -27,13 +27,15 @@ RUN apk --no-cache add \
   envsubst \
   conntrack-tools \
   curl \
-  jq
+  jq \
+  iproute2
 
 RUN addgroup -S keepalived_script && adduser -D -S -G keepalived_script keepalived_script
 COPY --from=builder /usr/sbin/keepalived /usr/sbin/keepalived
-COPY assets/keepalived.conf /etc/keepalived/keepalived.conf
-COPY assets/notify.sh /notify.sh
-COPY assets/entrypoint.sh /entrypoint.sh
+COPY assets/keepalived/keepalived.conf /etc/keepalived/keepalived.conf
+COPY assets/keepalived/notify.sh /notify.sh
+COPY assets/keepalived/notify-conntrackd.sh /notify-conntrackd.sh
+COPY assets/keepalived/entrypoint.sh /entrypoint.sh
 
 # workaround for https://github.com/acassen/keepalived/issues/2503
 RUN mkdir -p /usr/share/iproute2/rt_addrprotos.d

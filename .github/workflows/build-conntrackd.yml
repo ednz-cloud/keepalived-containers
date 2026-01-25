@@ -1,5 +1,5 @@
 ---
-name: build
+name: build-conntrackd
 
 on:
   schedule:
@@ -7,44 +7,18 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'Containerfile.conntrackd'
+      - 'assets/conntrackd/**'
+      - '.github/workflows/build-conntrackd.yml'
 
 env:
-  IMAGE_NAME: ednxzu/keepalived
+  IMAGE_NAME: ednxzu/conntrackd
   BUILD_PLATFORMS: linux/amd64,linux/arm64
 
 jobs:
-  define:
-    runs-on: ubuntu-latest
-    outputs:
-      version_matrix: ${{ steps.docker-build-matrix.outputs.version_matrix }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Install required packages
-        run: |
-          export DEBIAN_FRONTEND=noninteractive
-          sudo apt update
-          sudo apt install -y curl jq
-
-      - id: docker-build-versions
-        name: Set build versions
-        run: |
-          build_versions=$(bash tools/version_check.sh)
-          echo "build_versions=$build_versions" >> "$GITHUB_OUTPUT"
-
-      - id: docker-build-matrix
-        name: Generate docker build matrix
-        uses: ednz-cloud/docker-matrix-generator@main
-        with:
-          versions: "${{ steps.docker-build-versions.outputs.build_versions }}"
-
   publish:
     runs-on: ubuntu-latest
-    needs: define
-    strategy:
-      matrix:
-        versions: ${{ fromJson(needs.define.outputs.version_matrix) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -66,31 +40,24 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.IMAGE_NAME }}
-          flavor: |
-            latest=auto
           labels: |
             org.opencontainers.image.authors=${{ github.repository_owner }}
-            org.opencontainers.image.created=${{ needs.prepare.outputs.date }}
             org.opencontainers.image.url=${{ github.event.repository.html_url }}
             org.opencontainers.image.documentation=${{ github.event.repository.html_url }}
             org.opencontainers.image.source=${{ github.event.repository.html_url }}
-            org.opencontainers.image.version=${{ matrix.versions.version }}
           tags: |
-            type=raw,value=${{ matrix.versions.version }},enable=true
-            type=raw,value=${{ matrix.versions.minor_version }},enable=${{ matrix.versions.is_latest_minor }}
-            type=raw,value=${{ matrix.versions.major_version }},enable=${{ matrix.versions.is_latest_major }}
-            type=raw,value=latest,enable=${{ matrix.versions.is_latest }}
+            type=raw,value=latest,enable=true
 
       - name: Build and publish
         id: build-and-push
         uses: docker/build-push-action@v6
         with:
           context: .
+          file: Containerfile.conntrackd
           push: ${{ (github.event_name != 'pull_request') || (env.FORCE_PUBLISH == 'true') }}
           tags: ${{ steps.metadata.outputs.tags }}
           labels: ${{ steps.metadata.outputs.labels }}
           platforms: ${{ env.BUILD_PLATFORMS }}
-          build-args: KEEPALIVED_VERSION=${{ matrix.versions.version }}
 
   document:
     runs-on: ubuntu-latest
@@ -104,4 +71,5 @@ jobs:
           username: ${{ secrets.DOCKERHUB_API_USERNAME }}
           password: ${{ secrets.DOCKERHUB_API_TOKEN }}
           repository: ${{ env.IMAGE_NAME }}
-          short-description: "Simple keepalived containers"
+          readme-filepath: docs/conntrackd.md
+          short-description: "Conntrackd container for connection tracking synchronization"
