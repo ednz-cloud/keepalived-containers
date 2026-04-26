@@ -67,9 +67,12 @@ build_keepalived() {
   if [ "$VERSION" = "2.3.2" ]; then
     apk add linux-headers bash
     sed -i 's/#include <linux\/if_ether.h>//' keepalived/vrrp/vrrp.c
-    CONFIGURE_SHELL="/bin/bash" # Use bash for configure on version 2.3.2
+    CONFIGURE_SHELL="/bin/bash"
   else
-    CONFIGURE_SHELL="/bin/sh" # Default shell
+    CONFIGURE_SHELL="/bin/sh"
+    # Older keepalived versions have C99 mixed declarations that fail under
+    # Alpine 3.23's GCC which enables -Werror=declaration-after-statement
+    export CFLAGS="-Wno-declaration-after-statement"
   fi
 
   # Run configure with MKDIR_P set in the environment and the configuration flags
